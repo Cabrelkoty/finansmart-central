@@ -6,14 +6,23 @@ Sur Railway, elles sont définies dans l'onglet "Variables" du service.
 
 import os
 import secrets
+from pathlib import Path
 
 from dotenv import load_dotenv
 
 # Charge le fichier .env (s'il existe) dans les variables d'environnement.
-# En production sur Railway, ce fichier n'existe pas — les variables sont
-# déjà injectées directement par la plateforme, load_dotenv() ne fait
-# alors rien (sans erreur).
-load_dotenv()
+# Le fichier est rangé un niveau au-dessus de finansmart_central/ (dans fs/)
+# pour éviter qu'il se retrouve par erreur dans le dossier suivi par Git ou
+# synchronisé avec un cloud. En production sur Railway, ce fichier n'existe
+# pas — les variables sont déjà injectées directement par la plateforme,
+# load_dotenv() ne fait alors rien (sans erreur).
+_ENV_PATH = Path(__file__).resolve().parent.parent / ".env"
+if _ENV_PATH.exists():
+    load_dotenv(dotenv_path=_ENV_PATH)
+else:
+    # Repli sur le comportement par défaut (recherche automatique), au cas où
+    # quelqu'un remettrait un .env directement dans finansmart_central/.
+    load_dotenv()
 
 
 def _required(name: str, default: str | None = None) -> str:
